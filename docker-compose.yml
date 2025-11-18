@@ -1,0 +1,39 @@
+version: '3.9'
+
+services:
+  web:
+    # Utiliser le Dockerfile local pour construire l'image
+    build: .
+    # Monter le dossier local dans le conteneur
+    volumes:
+      - .:/usr/src/app
+    # Mapper le port
+    ports:
+      - "8000:8000"
+    # Variables d'environnement lues par settings.py
+    environment:
+      - DEBUG=1
+      - DB_NAME=djoknone_pmd_db
+      - DB_USER=djoknone_user
+      - DB_PASSWORD=djoknone_password
+      - DB_HOST=db  # Nom du service DB
+      - DB_PORT=5432
+    # Dépend de la base de données
+    depends_on:
+      - db
+    
+  db:
+    # Image PostgreSQL
+    image: postgres:15-alpine
+    # Stocker les données de manière persistante
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    # Variables d'environnement pour configurer PostgreSQL
+    environment:
+      - POSTGRES_DB=djoknone_pmd_db
+      - POSTGRES_USER=djoknone_user
+      - POSTGRES_PASSWORD=djoknone_password
+
+volumes:
+  # Volume persistant
+  postgres_data:
