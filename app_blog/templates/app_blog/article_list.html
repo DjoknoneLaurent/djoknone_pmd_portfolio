@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Blog - Portfolio{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<section class="bg-gradient-to-r from-purple-600 to-purple-800 text-white py-16">
+    <div class="max-w-6xl mx-auto px-4 text-center">
+        <h1 class="text-4xl font-bold mb-4">Blog</h1>
+        <p class="text-purple-200 text-lg">Articles, tutoriels et réflexions sur la data science et le développement</p>
+    </div>
+</section>
+
+<!-- Filtres -->
+<section class="bg-white py-8 border-b">
+    <div class="max-w-6xl mx-auto px-4">
+        <!-- Catégories -->
+        <div class="flex flex-wrap gap-2 justify-center mb-4">
+            <a href="{% url 'app_blog:article_list' %}" 
+               class="px-4 py-2 rounded-full text-sm transition {% if not current_category and not current_tag %}bg-purple-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                Tous
+            </a>
+            {% for category in categories %}
+                <a href="?category={{ category.slug }}" 
+                   class="px-4 py-2 rounded-full text-sm transition {% if current_category == category.slug %}bg-purple-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                    {{ category.name }}
+                </a>
+            {% endfor %}
+        </div>
+        
+        <!-- Tags -->
+        {% if tags %}
+        <div class="flex flex-wrap gap-2 justify-center">
+            {% for tag in tags %}
+                <a href="?tag={{ tag.slug }}" 
+                   class="px-3 py-1 rounded text-xs transition {% if current_tag == tag.slug %}bg-purple-200 text-purple-800{% else %}bg-gray-50 text-gray-600 hover:bg-gray-100{% endif %}">
+                    #{{ tag.name }}
+                </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Liste des articles -->
+<section class="py-16 bg-gray-50">
+    <div class="max-w-6xl mx-auto px-4">
+        {% if articles %}
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for article in articles %}
+                    <article class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition">
+                        <!-- Image -->
+                        <a href="{% url 'app_blog:article_detail' article.slug %}">
+                            {% if article.cover_image %}
+                                <img src="{{ article.cover_image.url }}" alt="{{ article.title }}" class="w-full h-48 object-cover">
+                            {% else %}
+                                <div class="w-full h-48 bg-gradient-to-r from-purple-400 to-purple-600 flex items-center justify-center">
+                                    <i class="fas fa-newspaper text-white text-4xl"></i>
+                                </div>
+                            {% endif %}
+                        </a>
+                        
+                        <!-- Contenu -->
+                        <div class="p-6">
+                            <!-- Catégorie et date -->
+                            <div class="flex items-center gap-4 text-sm text-gray-500 mb-3">
+                                {% if article.category %}
+                                    <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded">{{ article.category.name }}</span>
+                                {% endif %}
+                                <span><i class="far fa-calendar mr-1"></i>{{ article.published_at|date:"d M Y" }}</span>
+                            </div>
+                            
+                            <h2 class="text-xl font-semibold mb-2">
+                                <a href="{% url 'app_blog:article_detail' article.slug %}" class="hover:text-purple-600 transition">
+                                    {{ article.title }}
+                                </a>
+                            </h2>
+                            <p class="text-gray-600 text-sm mb-4">{{ article.excerpt|truncatewords:25 }}</p>
+                            
+                            <!-- Footer -->
+                            <div class="flex items-center justify-between pt-4 border-t text-sm text-gray-500">
+                                <span><i class="far fa-clock mr-1"></i>{{ article.reading_time }} min</span>
+                                <span><i class="far fa-eye mr-1"></i>{{ article.views_count }} vues</span>
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-16">
+                <i class="fas fa-newspaper text-gray-300 text-6xl mb-4"></i>
+                <p class="text-gray-500 text-lg">Aucun article publié pour le moment.</p>
+                <a href="{% url 'app_blog:article_list' %}" class="text-purple-600 hover:underline mt-2 inline-block">Voir tous les articles</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock content %}

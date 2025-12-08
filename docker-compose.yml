@@ -2,38 +2,45 @@ version: '3.9'
 
 services:
   web:
-    # Utiliser le Dockerfile local pour construire l'image
     build: .
-    # Monter le dossier local dans le conteneur
+    container_name: pmd_web
+    restart: unless-stopped
     volumes:
       - .:/usr/src/app
-    # Mapper le port
+      - static_volume:/usr/src/app/staticfiles
+      - media_volume:/usr/src/app/media
     ports:
       - "8000:8000"
-    # Variables d'environnement lues par settings.py
     environment:
-      - DEBUG=1
+      - DEBUG=${DEBUG:-1}
+      - SECRET_KEY=${SECRET_KEY:-django-insecure-dev-key-change-in-production}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,127.0.0.1}
       - DB_NAME=djoknone_pmd_db
       - DB_USER=djoknone_user
       - DB_PASSWORD=djoknone_password
-      - DB_HOST=db  # Nom du service DB
+      - DB_HOST=db
       - DB_PORT=5432
-    # Dépend de la base de données
     depends_on:
-      - db
-    
+      db:
+        condition: service_healthy
+
   db:
-    # Image PostgreSQL
     image: postgres:15-alpine
-    # Stocker les données de manière persistante
+    container_name: pmd_postgres
+    restart: unless-stopped
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    # Variables d'environnement pour configurer PostgreSQL
     environment:
       - POSTGRES_DB=djoknone_pmd_db
       - POSTGRES_USER=djoknone_user
       - POSTGRES_PASSWORD=djoknone_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U djoknone_user -d djoknone_pmd_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
-  # Volume persistant
   postgres_data:
+  static_volume:
+  media_volume:

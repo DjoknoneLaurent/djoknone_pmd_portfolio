@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Accueil - {{ profile.full_name }}{% endblock %}
+
+{% block content %}
+
+<!-- Section Hero -->
+<section id="accueil" class="bg-gradient-to-r from-blue-600 to-blue-800 dark:from-blue-800 dark:to-blue-950 text-white py-20">
+    <div class="max-w-6xl mx-auto px-4">
+        <div class="flex flex-col md:flex-row items-center gap-8">
+            <!-- Photo -->
+            <div class="flex-shrink-0">
+                {% if profile.photo %}
+                    <img src="{{ profile.photo.url }}" alt="{{ profile.full_name }}" 
+                         class="w-48 h-48 rounded-full border-4 border-white shadow-lg object-cover">
+                {% else %}
+                    <div class="w-48 h-48 rounded-full bg-blue-400 dark:bg-blue-600 flex items-center justify-center border-4 border-white shadow-lg">
+                        <i class="fas fa-user text-6xl text-white"></i>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Infos -->
+            <div class="text-center md:text-left">
+                {% if profile.is_available %}
+                    <span class="inline-block bg-green-500 text-white text-sm px-3 py-1 rounded-full mb-4">
+                        <i class="fas fa-check-circle mr-1"></i> Disponible
+                    </span>
+                {% endif %}
+                <h1 class="text-4xl md:text-5xl font-bold mb-2">{{ profile.full_name }}</h1>
+                <p class="text-xl md:text-2xl text-blue-200 mb-4">{{ profile.headline }}</p>
+                <p class="text-blue-100 mb-6 max-w-xl">
+                    <i class="fas fa-map-marker-alt mr-2"></i>{{ profile.location }}
+                </p>
+                
+                <!-- Boutons -->
+                <div class="flex flex-wrap gap-4 justify-center md:justify-start">
+                    <a href="#contact" class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
+                        <i class="fas fa-envelope mr-2"></i>Me contacter
+                    </a>
+                    {% if profile.cv_file %}
+                        <a href="{{ profile.cv_file.url }}" download class="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition">
+                            <i class="fas fa-download mr-2"></i>Télécharger CV
+                        </a>
+                    {% endif %}
+                </div>
+
+                <!-- Réseaux sociaux -->
+                <div class="flex gap-4 mt-6 justify-center md:justify-start">
+                    {% if profile.linkedin_url %}
+                        <a href="{{ profile.linkedin_url }}" target="_blank" class="text-white hover:text-blue-200 text-2xl transition">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                    {% endif %}
+                    {% if profile.github_url %}
+                        <a href="{{ profile.github_url }}" target="_blank" class="text-white hover:text-blue-200 text-2xl transition">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    {% endif %}
+                    {% if profile.twitter_url %}
+                        <a href="{{ profile.twitter_url }}" target="_blank" class="text-white hover:text-blue-200 text-2xl transition">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                    {% endif %}
+                    {% if profile.facebook_url %}
+                        <a href="{{ profile.facebook_url }}" target="_blank" class="text-white hover:text-blue-200 text-2xl transition">
+                            <i class="fab fa-facebook"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section À propos -->
+<section class="py-16 bg-white dark:bg-gray-800 transition-colors duration-300">
+    <div class="max-w-4xl mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-8 text-gray-800 dark:text-white">À propos</h2>
+        <div class="prose prose-lg dark:prose-invert max-w-none text-gray-600 dark:text-gray-300">
+            {{ profile.bio|linebreaks }}
+        </div>
+    </div>
+</section>
+
+<!-- Section Compétences -->
+<section id="competences" class="py-16 bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <div class="max-w-6xl mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12 text-gray-800 dark:text-white">Compétences</h2>
+        
+        {% if skill_categories %}
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for category in skill_categories %}
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md transition-colors duration-300">
+                        <h3 class="text-xl font-semibold text-blue-600 dark:text-blue-400 mb-4">{{ category.name }}</h3>
+                        <div class="flex flex-wrap gap-2">
+                            {% for skill in category.skills.all %}
+                                <span class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-1 rounded-full text-sm">
+                                    {{ skill.name }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-center text-gray-500 dark:text-gray-400">Compétences à venir...</p>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Section Projets -->
+<section id="projets" class="py-16 bg-white dark:bg-gray-800 transition-colors duration-300">
+    <div class="max-w-6xl mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12 text-gray-800 dark:text-white">Projets Vedettes</h2>
+        
+        {% if featured_projects %}
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for project in featured_projects %}
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition">
+                        {% if project.image %}
+                            <img src="{{ project.image.url }}" alt="{{ project.title }}" class="w-full h-48 object-cover">
+                        {% else %}
+                            <div class="w-full h-48 bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
+                                <i class="fas fa-project-diagram text-white text-4xl"></i>
+                            </div>
+                        {% endif %}
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-white">{{ project.title }}</h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-sm mb-4">{{ project.short_description }}</p>
+                            <div class="flex gap-2 flex-wrap mb-4">
+                                {% for tech in project.technologies.all %}
+                                    <span class="text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 px-2 py-1 rounded">{{ tech.name }}</span>
+                                {% endfor %}
+                            </div>
+                            <div class="flex gap-4">
+                                {% if project.github_url %}
+                                    <a href="{{ project.github_url }}" target="_blank" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
+                                        <i class="fab fa-github text-xl"></i>
+                                    </a>
+                                {% endif %}
+                                {% if project.demo_url %}
+                                    <a href="{{ project.demo_url }}" target="_blank" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
+                                        <i class="fas fa-external-link-alt text-xl"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Lien vers tous les projets -->
+            <div class="text-center mt-8">
+                <a href="{% url 'app_projects:project_list' %}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition">
+                    Voir tous les projets <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        {% else %}
+            <p class="text-center text-gray-500 dark:text-gray-400">Projets à venir...</p>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Section Contact -->
+<section id="contact" class="py-16 bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold mb-8 text-gray-800 dark:text-white">Me Contacter</h2>
+        <p class="text-gray-600 dark:text-gray-300 mb-8">Intéressé par une collaboration ? N'hésitez pas à me contacter !</p>
+        
+        <div class="flex flex-col md:flex-row gap-8 justify-center">
+            <a href="mailto:{{ profile.email }}" class="flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg transition">
+                <i class="fas fa-envelope text-xl"></i>
+                <span>{{ profile.email }}</span>
+            </a>
+            {% if profile.phone %}
+                <a href="tel:{{ profile.phone }}" class="flex items-center justify-center gap-3 bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg transition">
+                    <i class="fas fa-phone text-xl"></i>
+                    <span>{{ profile.phone }}</span>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{% endblock content %}

@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
+import dj_database_url
 import os
 from pathlib import Path
 
@@ -20,17 +21,23 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-jgdga4)no8-7t(8+fosa^fp9n!wo^5x1keij*y)@y&*cee$4zl"
+SECRET_KEY = os.environ.get('SECRET_KEY', "django-insecure-jgdga4)no8-7t(8+fosa^fp9n!wo^5x1keij*y)@y&*cee$4zl")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,192.168.100.26').split(',')
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    # Applications du projet PMD
+    "app_core",         # Paramètres généraux, page d'accueil
+    "app_skills",       # Compétences
+    "app_projects",     # Projets
+    "app_experience",   # Expérience et Certifications
+    "app_blog",        # Blog
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -41,12 +48,16 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+
+    
+    
 ]
 
 ROOT_URLCONF = "djoknone_portfolio.urls"
@@ -54,8 +65,9 @@ ROOT_URLCONF = "djoknone_portfolio.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
-        "APP_DIRS": True,
+        # Inclure les templates du projet ET des apps
+        "DIRS": [BASE_DIR / 'templates'], 
+        "APP_DIRS": True,  # ← Ceci charge automatiquement les templates/app_*/templates/
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.request",
@@ -73,25 +85,30 @@ WSGI_APPLICATION = "djoknone_portfolio.wsgi.application"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # ***************************************************************
-# CONFIGURATION DE LA BASE DE DONNÉES (DOCKER / DEV)
+# CONFIGURATION DE LA BASE DE DONNÉES
 # ***************************************************************
 
-# La configuration est conditionnelle : 
-# Si la variable d'environnement 'DB_HOST' est définie (par docker-compose.yml), on utilise PostgreSQL.
-if os.environ.get('DB_HOST'):
-    # Configuration PostgreSQL pour l'environnement Docker/Production (professionnel)
+# Si DATABASE_URL est défini (Render), l'utiliser
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
+    }
+elif os.environ.get('DB_HOST'):
+    # Configuration PostgreSQL pour Docker
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': os.environ.get('DB_NAME'),
             'USER': os.environ.get('DB_USER'),
             'PASSWORD': os.environ.get('DB_PASSWORD'),
-            'HOST': os.environ.get('DB_HOST'),  # Sera 'db' (le nom du service) dans le réseau Docker
+            'HOST': os.environ.get('DB_HOST'),
             'PORT': os.environ.get('DB_PORT'),
         }
     }
 else:
-    # Configuration SQLite par défaut (pour le développement local simple hors Docker)
+    # SQLite pour le développement local
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -151,8 +168,23 @@ STATIC_URL = "static/"
 # Dossier où Django va collecter tous les fichiers statiques pour le déploiement (production)
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# ***************************************************************
+# CONFIGURATION WHITENOISE (Fichiers statiques en production)
+# ***************************************************************
+
+# Configuration WhiteNoise
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# ***************************************************************
+# FICHIERS MEDIA (Uploads : photos, CV, images)
+# ***************************************************************
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Projets - Portfolio{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
+    <div class="max-w-6xl mx-auto px-4 text-center">
+        <h1 class="text-4xl font-bold mb-4">Mes Projets</h1>
+        <p class="text-blue-200 text-lg">Découvrez mes réalisations et contributions</p>
+    </div>
+</section>
+
+<!-- Filtres par technologie -->
+<section class="bg-white py-8 border-b">
+    <div class="max-w-6xl mx-auto px-4">
+        <div class="flex flex-wrap gap-2 justify-center">
+            <a href="{% url 'app_projects:project_list' %}" 
+               class="px-4 py-2 rounded-full text-sm transition {% if not current_tech %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                Tous
+            </a>
+            {% for tech in technologies %}
+                <a href="?tech={{ tech.slug }}" 
+                   class="px-4 py-2 rounded-full text-sm transition {% if current_tech == tech.slug %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                    {{ tech.name }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Liste des projets -->
+<section class="py-16 bg-gray-50">
+    <div class="max-w-6xl mx-auto px-4">
+        {% if projects %}
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for project in projects %}
+                    <article class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition transform hover:-translate-y-1">
+                        <!-- Image -->
+                        <a href="{% url 'app_projects:project_detail' project.slug %}">
+                            {% if project.image %}
+                                <img src="{{ project.image.url }}" alt="{{ project.title }}" class="w-full h-48 object-cover">
+                            {% else %}
+                                <div class="w-full h-48 bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
+                                    <i class="fas fa-project-diagram text-white text-4xl"></i>
+                                </div>
+                            {% endif %}
+                        </a>
+                        
+                        <!-- Contenu -->
+                        <div class="p-6">
+                            <!-- Status badge -->
+                            {% if project.is_featured %}
+                                <span class="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full mb-2">
+                                    <i class="fas fa-star mr-1"></i>Vedette
+                                </span>
+                            {% endif %}
+                            
+                            <h2 class="text-xl font-semibold mb-2">
+                                <a href="{% url 'app_projects:project_detail' project.slug %}" class="hover:text-blue-600 transition">
+                                    {{ project.title }}
+                                </a>
+                            </h2>
+                            <p class="text-gray-600 text-sm mb-4">{{ project.short_description }}</p>
+                            
+                            <!-- Technologies -->
+                            <div class="max-w-6xl mx-auto px-4">
+                                <div class="flex flex-wrap gap-2 justify-center">
+                                    <a href="{% url 'app_projects:project_list' %}" 
+                                    class="px-4 py-2 rounded-full text-sm transition {% if not current_tech %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                                        Tous
+                                    </a>
+                                    {% for tech in technologies %}
+                                        <a href="?tech={{ tech.slug }}" 
+                                        class="px-4 py-2 rounded-full text-sm transition {% if current_tech == tech.slug %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                                            {{ tech.name }}
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <!-- Liens -->
+                            <div class="flex gap-4 pt-4 border-t">
+                                <a href="{% url 'app_projects:project_detail' project.slug %}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    <i class="fas fa-eye mr-1"></i>Voir détails
+                                </a>
+                                {% if project.github_url %}
+                                    <a href="{{ project.github_url }}" target="_blank" class="text-gray-600 hover:text-gray-800 text-sm">
+                                        <i class="fab fa-github mr-1"></i>GitHub
+                                    </a>
+                                {% endif %}
+                                {% if project.demo_url %}
+                                    <a href="{{ project.demo_url }}" target="_blank" class="text-green-600 hover:text-green-800 text-sm">
+                                        <i class="fas fa-external-link-alt mr-1"></i>Démo
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-16">
+                <i class="fas fa-folder-open text-gray-300 text-6xl mb-4"></i>
+                <p class="text-gray-500 text-lg">Aucun projet trouvé.</p>
+                <a href="{% url 'app_projects:project_list' %}" class="text-blue-600 hover:underline mt-2 inline-block">Voir tous les projets</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}

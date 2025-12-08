@@ -1,0 +1,22 @@
+databases:
+  - name: pmd-db
+    databaseName: pmd_portfolio
+    user: pmd_user
+    plan: free
+
+services:
+  - type: web
+    name: pmd-portfolio
+    plan: free
+    runtime: docker
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: pmd-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"

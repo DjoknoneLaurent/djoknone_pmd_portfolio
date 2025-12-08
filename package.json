@@ -1,0 +1,28 @@
+{
+  "name": "djoknone_pmd_portfolio",
+  "version": "1.0.0",
+  "description": "Mon portfolio professionnel Modulaire et Distingué",
+  "main": "index.js",
+  "scripts": {
+    "tw:init": "tailwindcss init -p",
+    "tw:watch": "tailwindcss -i ./static/src/input.css -o ./static/css/styles.css --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DjoknoneLaurent/djoknone_pmd_portfolio.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/DjoknoneLaurent/djoknone_pmd_portfolio/issues"
+  },
+  "homepage": "https://github.com/DjoknoneLaurent/djoknone_pmd_portfolio#readme",
+  "devDependencies": {
+    "autoprefixer": "^10.4.22",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.3.0"
+  }
+}

@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ project.title }} - Portfolio{% endblock %}
+
+{% block content %}
+
+<!-- Header du projet -->
+<section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
+    <div class="max-w-4xl mx-auto px-4">
+        <a href="{% url 'app_projects:project_list' %}" class="text-blue-200 hover:text-white mb-4 inline-block">
+            <i class="fas fa-arrow-left mr-2"></i>Retour aux projets
+        </a>
+        <h1 class="text-4xl font-bold mb-4">{{ project.title }}</h1>
+        <p class="text-blue-200 text-lg">{{ project.short_description }}</p>
+        
+        <!-- Technologies -->
+        <div class="flex gap-2 flex-wrap mt-6">
+            {% for tech in project.technologies.all %}
+                <span class="bg-white/20 text-white px-3 py-1 rounded-full text-sm">
+                    {{ tech.name }}
+                </span>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Contenu principal -->
+<section class="py-16">
+    <div class="max-w-4xl mx-auto px-4">
+        <div class="grid lg:grid-cols-3 gap-8">
+            
+            <!-- Description (2/3) -->
+            <div class="lg:col-span-2">
+                {% if project.image %}
+                    <img src="{{ project.image.url }}" alt="{{ project.title }}" class="w-full rounded-lg shadow-md mb-8">
+                {% endif %}
+                
+                <div class="prose prose-lg max-w-none">
+                    <h2 class="text-2xl font-bold mb-4">À propos du projet</h2>
+                    {{ project.description|linebreaks }}
+                </div>
+            </div>
+            
+            <!-- Sidebar (1/3) -->
+            <div class="lg:col-span-1">
+                <div class="bg-gray-50 rounded-lg p-6 sticky top-24">
+                    <h3 class="text-lg font-semibold mb-4">Informations</h3>
+                    
+                    <!-- Statut -->
+                    <div class="mb-4">
+                        <span class="text-gray-500 text-sm">Statut</span>
+                        <p class="font-medium">
+                            {% if project.status == 'completed' %}
+                                <span class="text-green-600"><i class="fas fa-check-circle mr-1"></i>Terminé</span>
+                            {% elif project.status == 'in_progress' %}
+                                <span class="text-yellow-600"><i class="fas fa-spinner mr-1"></i>En cours</span>
+                            {% else %}
+                                <span class="text-gray-600"><i class="fas fa-archive mr-1"></i>Archivé</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    
+                    <!-- Date -->
+                    <div class="mb-4">
+                        <span class="text-gray-500 text-sm">Date</span>
+                        <p class="font-medium">{{ project.created_at|date:"F Y" }}</p>
+                    </div>
+                    
+                    <!-- Liens -->
+                    <div class="space-y-3 mt-6">
+                        {% if project.github_url %}
+                            <a href="{{ project.github_url }}" target="_blank" 
+                               class="flex items-center justify-center gap-2 w-full bg-gray-800 text-white py-3 px-4 rounded-lg hover:bg-gray-900 transition">
+                                <i class="fab fa-github text-xl"></i>
+                                <span>Voir sur GitHub</span>
+                            </a>
+                        {% endif %}
+                        {% if project.demo_url %}
+                            <a href="{{ project.demo_url }}" target="_blank" 
+                               class="flex items-center justify-center gap-2 w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition">
+                                <i class="fas fa-external-link-alt"></i>
+                                <span>Voir la démo</span>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Projets similaires -->
+{% if similar_projects %}
+<section class="py-16 bg-gray-50">
+    <div class="max-w-6xl mx-auto px-4">
+        <h2 class="text-2xl font-bold mb-8">Projets similaires</h2>
+        <div class="grid md:grid-cols-3 gap-6">
+            {% for similar in similar_projects %}
+                <a href="{% url 'app_projects:project_detail' similar.slug %}" class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition">
+                    {% if similar.image %}
+                        <img src="{{ similar.image.url }}" alt="{{ similar.title }}" class="w-full h-32 object-cover">
+                    {% else %}
+                        <div class="w-full h-32 bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
+                            <i class="fas fa-project-diagram text-white text-2xl"></i>
+                        </div>
+                    {% endif %}
+                    <div class="p-4">
+                        <h3 class="font-semibold">{{ similar.title }}</h3>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% endblock content %}
